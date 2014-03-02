@@ -15,7 +15,7 @@
     "tba",
     "thebluealliance",
     "FIRST",
-    "robotics"
+    "robotics",
     "FIRST robotics",
     "competitive analysis",
     "scouting",
@@ -24,7 +24,7 @@
   "dependencies": {
     "request": "2.34.0"
   },
-  "main": "thebluealliance.js",
+  "main": "./thebluealliance.js",
   "bugs": {
     "url": "https://github.com/khanh111/node-thebluealliance/issues/new",
     "email": "hmzh.khn@gmail.com"
