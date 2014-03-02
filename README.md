@@ -1,235 +1,124 @@
 # node-thebluealliance
 
-node-thebluealliance is a node.js wrapper library for [The Blue Alliance v2 API](http://www.thebluealliance.com/apidocs).
+node-thebluealliance is a node.js wrapper library for [The Blue Alliance v2 API](http://www.thebluealliance.com/apidocs). See the v2 API page for more information on what data can be returned.
 
-## Documentation
+This app uses The Blue Alliance's post-2013 [event codes](https://docs.google.com/spreadsheet/ccc?key=0ApRO2Yzh2z01dExFZEdieV9WdTJsZ25HSWI3VUxsWGc#gid=0).
 
-[mongoosejs.com](http://mongoosejs.com/)
+
+## API Docs
+
+### Installation
+
+First install [node.js](http://nodejs.org/). Then:
+
+    $ npm install thebluealliance
+    
+### Import (`tba = require('thebluealliance')([name])`)
+
+    var tba = require('thebluealliance')('name/organization','description of your application','1.0.0')
+
+This sets the `X-TBA-App-Id` header information (new and required in v2 API) so that you never have to again. `tba` holds all of the methods that can request data from The Blue Alliance.
+    
+### tba.getTeam ([`frc_id`], [`year` | optional, defaults to current year], [`callback(error, teamInfo)`])
+
+    // get 1540 data from the current year
+    
+    tba.getTeam(1540, function(err, teamInfo) {
+      // the year parameter defaults to the current year
+    });
+    
+    // is the same as
+    
+    tba.getTeam(1540, (new Date()).getFullYear(), function(err, teamInfo) {
+      // (new Date()).getFullYear() returns the current year (ex. 2014)
+    });
+    
+Or from past years:
+    
+    // get 1540 data from 2012
+    tba.getTeam(1540, 2012, function(err, teamInfo) {
+      // teamInfo is team 1540's data from 2012
+    });
+    
+### tba.getEvent ([`tba_event_code`], [`year` | optional, defaults to current year], [`callback(error, eventInfo)`])
+
+    // get 'casb' (Inland Empire Regional) event info from the current year
+    
+    tba.getEvent('casb', function(err, eventInfo) {
+      // the year parameter defaults to the current year
+    });
+    
+    // is the same as
+    
+    tba.getEvent('casb', (new Date()).getFullYear(), function(err, eventInfo) {
+      // (new Date()).getFullYear() returns the current year (ex. 2014)
+    });
+    
+Or from past years:
+    
+    // get 'casb' data from 2012
+    tba.getEvent('casb', 2012, function(err, eventInfo) {
+      // eventInfo is 'casb' regional event data from 2012
+    });
+
+The `tba.getEvent` method is aliased to `tba.getEventById`.
+
+### tba.getTeamsAtEvent ([`tba_event_code`], [`year` | optional, defaults to current year], [`callback(error, teamsInfo)`])
+
+    // get info on teams at the 'casb' (Inland Empire Regional) event this year
+    
+    tba.getTeamsAtEvent('casb', function(err, teamsInfo) {
+      // the year parameter defaults to the current year
+    });
+    
+    // is the same as
+    
+    tba.getTeamsAtEvent('casb', (new Date()).getFullYear(), function(err, teamsInfo) {
+      // (new Date()).getFullYear() returns the current year (ex. 2014)
+    });
+    
+Or from past years:
+    
+    // get 'casb' team data from 2012
+    tba.getTeamsAtEvent('casb', 2012, function(err, teamsInfo) {
+      // teamsInfo is info on teams at the 'casb' regional event in 2012
+    });
+
+### tba.getMatchesAtEvent ([`tba_event_code`], [`year` | optional, defaults to current year], [`callback(error, matchesInfo)`])
+
+    // get info on matches at the 'casb' (Inland Empire Regional) event this year
+    
+    tba.getMatchesAtEvent('casb', function(err, matchesInfo) {
+      // the year parameter defaults to the current year
+    });
+    
+    // is the same as
+    
+    tba.getMatchesAtEvent('casb', (new Date()).getFullYear(), function(err, matchesInfo) {
+      // (new Date()).getFullYear() returns the current year (ex. 2014)
+    });
+    
+Or from past years:
+    
+    // get 'casb' match data from 2012
+    tba.getMatchesAtEvent('casb', 2012, function(err, matchesInfo) {
+      // matchesInfo is info on matches at the 'casb' regional event in 2012
+    });
+ 
 
 ## Support
   - [bug reports](https://github.com/khanh111/node-thebluealliance/issues)
 
 ## To-Do List
+  - add better example code
   - tests w/ [Mocha](http://visionmedia.github.io/mocha/)
-  - ability to pass in more variants of ids/years (i.e. '2014orore' instead of `getEvent('orore',2014)`)
-  - improve documentation
-
-
-## Installation
-
-First install [node.js](http://nodejs.org/) and [mongodb](http://www.mongodb.org/downloads). Then:
-
-    $ npm install thebluealliance
-    
-
-## Overview
-
-### Connecting to MongoDB
-
-First, we need to define a connection. If your app uses only one database, you should use `mongoose.connect`. If you need to create additional connections, use `mongoose.createConnection`.
-
-Both `connect` and `createConnection` take a `mongodb://` URI, or the parameters `host, database, port, options`.
-
-    var mongoose = require('mongoose');
-
-    mongoose.connect('mongodb://localhost/my_database');
-
-Once connected, the `open` event is fired on the `Connection` instance. If you're using `mongoose.connect`, the `Connection` is `mongoose.connection`. Otherwise, `mongoose.createConnection` return value is a `Connection`.
-
-**Important!** Mongoose buffers all the commands until it's connected to the database. This means that you don't have to wait until it connects to MongoDB in order to define models, run queries, etc.
-
-### Defining a Model
-
-Models are defined through the `Schema` interface. 
-
-    var Schema = mongoose.Schema
-      , ObjectId = Schema.ObjectId;
-
-    var BlogPost = new Schema({
-        author    : ObjectId
-      , title     : String
-      , body      : String
-      , date      : Date
-    });
-
-Aside from defining the structure of your documents and the types of data you're storing, a Schema handles the definition of:
-
-* [Validators](http://mongoosejs.com/docs/validation.html) (async and sync)
-* [Defaults](http://mongoosejs.com/docs/api.html#schematype_SchemaType-default)
-* [Getters](http://mongoosejs.com/docs/api.html#schematype_SchemaType-get)
-* [Setters](http://mongoosejs.com/docs/api.html#schematype_SchemaType-set)
-* [Indexes](http://mongoosejs.com/docs/guide.html#indexes)
-* [Middleware](http://mongoosejs.com/docs/middleware.html)
-* [Methods](http://mongoosejs.com/docs/guide.html#methods) definition
-* [Statics](http://mongoosejs.com/docs/guide.html#statics) definition
-* [Plugins](http://mongoosejs.com/docs/plugins.html)
-* [pseudo-JOINs](http://mongoosejs.com/docs/populate.html)
-
-The following example shows some of these features:
-
-    var Comment = new Schema({
-        name  :  { type: String, default: 'hahaha' }
-      , age   :  { type: Number, min: 18, index: true }
-      , bio   :  { type: String, match: /[a-z]/ }
-      , date  :  { type: Date, default: Date.now }
-      , buff  :  Buffer
-    });
-
-    // a setter
-    Comment.path('name').set(function (v) {
-      return capitalize(v);
-    });
-
-    // middleware
-    Comment.pre('save', function (next) {
-      notify(this.get('email'));
-      next();
-    });
-
-Take a look at the example in `examples/schema.js` for an end-to-end example of a typical setup.
-
-### Accessing a Model
-
-Once we define a model through `mongoose.model('ModelName', mySchema)`, we can access it through the same function
-
-    var myModel = mongoose.model('ModelName');
-
-Or just do it all at once
-
-    var MyModel = mongoose.model('ModelName', mySchema);
-
-We can then instantiate it, and save it:
-
-    var instance = new MyModel();
-    instance.my.key = 'hello';
-    instance.save(function (err) {
-      //
-    });
-
-Or we can find documents from the same collection
-
-    MyModel.find({}, function (err, docs) {
-      // docs.forEach
-    });
-
-You can also `findOne`, `findById`, `update`, etc. For more details check out [the docs](http://mongoosejs.com/docs/queries.html).
-
-**Important!** If you opened a separate connection using `mongoose.createConnection()` but attempt to access the model through `mongoose.model('ModelName')` it will not work as expected since it is not hooked up to an active db connection. In this case access your model through the connection you created:
-
-    var conn = mongoose.createConnection('your connection string');
-    var MyModel = conn.model('ModelName', schema);
-    var m = new MyModel;
-    m.save() // works
-
-    vs
-
-    var conn = mongoose.createConnection('your connection string');
-    var MyModel = mongoose.model('ModelName', schema);
-    var m = new MyModel;
-    m.save() // does not work b/c the default connection object was never connected
-
-### Embedded Documents
-
-In the first example snippet, we defined a key in the Schema that looks like:
-
-    comments: [Comments]
-
-Where `Comments` is a `Schema` we created. This means that creating embedded documents is as simple as:
-
-    // retrieve my model
-    var BlogPost = mongoose.model('BlogPost');
-
-    // create a blog post
-    var post = new BlogPost();
-
-    // create a comment
-    post.comments.push({ title: 'My comment' });
-
-    post.save(function (err) {
-      if (!err) console.log('Success!');
-    });
-
-The same goes for removing them:
-
-    BlogPost.findById(myId, function (err, post) {
-      if (!err) {
-        post.comments[0].remove();
-        post.save(function (err) {
-          // do something
-        });
-      }
-    });
-
-Embedded documents enjoy all the same features as your models. Defaults, validators, middleware. Whenever an error occurs, it's bubbled to the `save()` error callback, so error handling is a snap!
-
-Mongoose interacts with your embedded documents in arrays _atomically_, out of the box.
-
-### Middleware
-
-See the [docs](http://mongoosejs.com/docs/middleware.html) page.
-
-#### Intercepting and mutating method arguments
-
-You can intercept method arguments via middleware.
-
-For example, this would allow you to broadcast changes about your Documents every time someone `set`s a path in your Document to a new value:
-
-    schema.pre('set', function (next, path, val, typel) {
-      // `this` is the current Document
-      this.emit('set', path, val);
-
-      // Pass control to the next pre
-      next();
-    });
-
-Moreover, you can mutate the incoming `method` arguments so that subsequent middleware see different values for those arguments. To do so, just pass the new values to `next`:
-
-    .pre(method, function firstPre (next, methodArg1, methodArg2) {
-      // Mutate methodArg1
-      next("altered-" + methodArg1.toString(), methodArg2);
-    })
-
-    // pre declaration is chainable
-    .pre(method, function secondPre (next, methodArg1, methodArg2) {
-      console.log(methodArg1);
-      // => 'altered-originalValOfMethodArg1' 
-      
-      console.log(methodArg2);
-      // => 'originalValOfMethodArg2' 
-      
-      // Passing no arguments to `next` automatically passes along the current argument values
-      // i.e., the following `next()` is equivalent to `next(methodArg1, methodArg2)`
-      // and also equivalent to, with the example method arg 
-      // values, `next('altered-originalValOfMethodArg1', 'originalValOfMethodArg2')`
-      next();
-    })
-
-#### Schema gotcha
-
-`type`, when used in a schema has special meaning within Mongoose. If your schema requires using `type` as a nested property you must use object notation:
-
-    new Schema({
-        broken: { type: Boolean }
-      , asset : {
-            name: String
-          , type: String // uh oh, it broke. asset will be interpreted as String
-        }
-    });
-
-    new Schema({
-        works: { type: Boolean }
-      , asset : {
-            name: String
-          , type: { type: String } // works. asset is an object with a type property
-        }
-    });
-
-### Driver access
-
-The driver being used defaults to [node-mongodb-native](https://github.com/mongodb/node-mongodb-native) and is directly accessible through `YourModel.collection`. **Note**: using the driver directly bypasses all Mongoose power-tools like validation, getters, setters, hooks, etc.
-
-## API Docs
-
+  - ability to pass in more variants of ids/years (i.e. `'2014orore'` instead of `getEvent('orore',2014)`)
+  - improve documentation (MAKE IT PRETTY!)
+
+## Functionality Improvements
+  - methods that allow analysis of certain data subsets
+  - data caching for things that are unlikely to change
+    - for this one, limitations due to TBA API (can't get data subsets easily)
 
 ## License
 
