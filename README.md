@@ -13,7 +13,7 @@ First install [node.js](http://nodejs.org/). Then:
 
     $ npm install thebluealliance
     
-### Import (`tba = require('thebluealliance')([name])`)
+### Import (require('thebluealliance')([`name`], [`description`], [`version_number`]))
 
     var tba = require('thebluealliance')('name/organization','description of your application','1.0.0')
 
@@ -115,7 +115,7 @@ Or from past years:
   - ability to pass in more variants of ids/years (i.e. `'2014orore'` instead of `getEvent('orore',2014)`)
   - improve documentation (MAKE IT PRETTY!)
 
-## Functionality Improvements
+## Functionality Improvements To Make
   - methods that allow analysis of certain data subsets
   - data caching for things that are unlikely to change
     - for this one, limitations due to TBA API (can't get data subsets easily)
