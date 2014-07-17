@@ -1,124 +1,201 @@
 # node-thebluealliance
-
 node-thebluealliance is a node.js wrapper library for [The Blue Alliance v2 API](http://www.thebluealliance.com/apidocs). See the v2 API page for more information on what data can be returned.
 
-This app uses The Blue Alliance's post-2013 [event codes](https://docs.google.com/spreadsheet/ccc?key=0ApRO2Yzh2z01dExFZEdieV9WdTJsZ25HSWI3VUxsWGc#gid=0).
+This app uses The Blue Alliance's [post-2013 event codes](https://docs.google.com/spreadsheet/ccc?key=0ApRO2Yzh2z01dExFZEdieV9WdTJsZ25HSWI3VUxsWGc#gid=0).
 
-
-## API Docs
 
 ### Installation
-
 First install [node.js](http://nodejs.org/). Then:
-
     $ npm install thebluealliance
-    
-### Import (require('thebluealliance')([`name`], [`description`], [`version_number`]))
+This will download node-thebluealliance to the local `node_modules` folder, from which it can be imported with `require`.
 
-    var tba = require('thebluealliance')('name/organization','description of your application','1.0.0')
 
-This sets the `X-TBA-App-Id` header information (new and required in v2 API) so that you never have to again. `tba` holds all of the methods that can request data from The Blue Alliance.
-    
-### tba.getTeam ([`frc_id`], [`year` | optional, defaults to current year], [`callback(error, teamInfo)`])
+## node-thebluealliance API docs
 
-    // get 1540 data from the current year
-    
-    tba.getTeam(1540, function(err, teamInfo) {
-      // the year parameter defaults to the current year
-    });
-    
-    // is the same as
-    
-    tba.getTeam(1540, (new Date()).getFullYear(), function(err, teamInfo) {
-      // (new Date()).getFullYear() returns the current year (ex. 2014)
-    });
-    
-Or from past years:
-    
-    // get 1540 data from 2012
-    tba.getTeam(1540, 2012, function(err, teamInfo) {
-      // teamInfo is team 1540's data from 2012
-    });
-    
-### tba.getEvent ([`tba_event_code`], [`year` | optional, defaults to current year], [`callback(error, eventInfo)`])
+### **Notes on the API**
 
-    // get 'casb' (Inland Empire Regional) event info from the current year
-    
-    tba.getEvent('casb', function(err, eventInfo) {
-      // the year parameter defaults to the current year
-    });
-    
-    // is the same as
-    
-    tba.getEvent('casb', (new Date()).getFullYear(), function(err, eventInfo) {
-      // (new Date()).getFullYear() returns the current year (ex. 2014)
-    });
-    
-Or from past years:
-    
-    // get 'casb' data from 2012
-    tba.getEvent('casb', 2012, function(err, eventInfo) {
-      // eventInfo is 'casb' regional event data from 2012
-    });
+- Arguments
+    - `frc_id` refers to the number assigned to each team by FIRST (i.e. 1540, 254, etc.)
+    - `event_id` refers to The Blue Alliance's [post-2013 event codes](https://docs.google.com/spreadsheet/ccc?key=0ApRO2Yzh2z01dExFZEdieV9WdTJsZ25HSWI3VUxsWGc#gid=0)
 
-The `tba.getEvent` method is aliased to `tba.getEventById`.
+- **CONSISTENT ACROSS EVERY FUNCTION:** In node's style, all callbacks will receive an `error` object as the first argument. A null `error` object indicates a successful request. The second argument in the callback will contain unchanged queried data from The Blue Alliance. The Blue Alliance data models are available under the Models sections of the [API webpage](http://www.thebluealliance.com/apidocs).
+#### callback(*err*, *data*)
+##### err
+type: `null` or `Error Object`
 
-### tba.getTeamsAtEvent ([`tba_event_code`], [`year` | optional, defaults to current year], [`callback(error, teamsInfo)`])
+##### data
+Queried data returned by The Blue Alliance
 
-    // get info on teams at the 'casb' (Inland Empire Regional) event this year
-    
+
+- **CONSISTENT ACROSS EVERY FUNCTION:** The year argument is always optional and will always default to the current year. For example, calling
+```javascript
+    tba.getTeamsAtEvent('arc', callback);
+```
+is the same as calling
+```javascript
+    tba.getTeamsAtEvent('arc', (new Date()).getFullYear(), callback);
+```
+
+#### year
+type: `number`
+default: current year
+
+The year for which data will be returned.
+
+- Suggestions for improvement are always welcome at hmzh.khn@gmail.com
+
+
+### Methods Summary
+- initTBA
+- tba
+    - **getListOfTeams**     /       getTeamList
+    - **getTeamById**     /       getTeam
+    - **getEventsForTeam**     /       getTeamEvent
+    - **getAwardsForTeamAtEvent**     /       getTeamEventAwards
+    - **getMatchesForTeamsAtEvent**     /       getTeamEventMatches
+    - **getYearsParticipatedByTeam**     /       getTeamYearsParticipated
+    - **getMediaForTeam**     /       getTeamMedia
+    - **getListOfEvents**     /       getEventList
+    - **getEventById**     /       getEvent
+    - **getTeamsAtEvent**     /       getEventTeams
+    - **getMatchesAtEvent**     /       getEventMatches
+    - **getStatsAtEvent**     /       getEventStats
+    - **getRankingsAtEvent**     /       getEventRankings
+    - **getAwardsAtEvent**     /       getEventAwards
+
+
+### initTBA(*identifier*, *description*, *version_number*)
+
+```javascript
+    var initTBA = require('thebluealliance');
+    var tba = initTBA('node-thebluealliance','Node.js wrapper library for the TBA v2 API','1.1.1');
+
+    // or as a shortcut
+
+    var tba = require('thebluealliance')('node-thebluealliance','Node.js wrapper library for the TBA v2 API','1.1.1');
+```
+
+The Blue Alliance v2 API requires a custom `X-TBA-App-Id` header in order to accept requests. Calling initTBA allows node-thebluealliance to retain this header for the duration of the library's use. Calling `initTBA` returns the `tba` object, which contains all of the methods required to retrieve data from The Blue Alliance.
+
+#### identifier
+Type: `String`
+
+Name or organization of the user.
+
+#### description
+Type: `String`
+
+Description of the application requesting data from The Blue Alliance.
+
+#### version_number
+Type: `String` or `Number`
+
+Version number of the application requesting data from The Blue Alliance.
+
+
+
+### tba.getListOfTeams(*page_num*, *callback(err, list_of_teams)*) 
+##### aliased to *tba.getTeamList*
+`Team List Request` on TBA API docs
+Gets all the teams on one page of the team list at TBA
+
+data_type: `Array` of `Teams`
+
+### tba.getTeamById(*frc_id*, *callback(err, team_info)*) 
+##### aliased to tba.getTeam
+`Team Request` on TBA API docs
+Gets one team`s background info by its team id
+
+### tba.getEventsForTeam(*frc_id*[, *year*], *callback(err, event_info)*) 
+##### aliased to tba.getTeamEvent
+`Team Events Request` on TBA API docs
+Gets all the team`s events from a single year
+
+### tba.getAwardsForTeamAtEvent(*frc_id*, *event_id*[, *year*], *callback(err, awards_list)*) 
+##### aliased to tba.getTeamEventAwards
+`Team Event Awards Request` on TBA API docs
+Gets all the teams awards for a single year at a single event
+
+
+### tba.getMatchesForTeamsAtEvent(*frc_id*, *event_id*, [*year*], *callback(err, matches_list)*) 
+##### aliased to tba.getTeamEventMatches
+`Team Event Matches Request` on TBA API docs
+Gets all the team`s matches at a single event in a single year
+
+### tba.getYearsParticipatedByTeam(*frc_id*, *callback(err, list_of_years)*) 
+##### aliased to tba.getTeamYearsParticipated
+`Team Years Participated Request` on TBA API docs
+returns array of years that the team has been participated in FIRST
+
+### tba.getMediaForTeam(*frc_id*, [*year*], *callback(err, media_list)*) 
+##### aliased to tba.getTeamMedia
+`Team Media Request` on TBA API docs
+Gets all the teams media for a single year,  as collected on TBA
+
+
+### tba.getListOfEvents([*year*], *callback(err, list_of_teams)*) 
+##### aliased to tba.getEventList
+`Team List Request` on TBA API docs
+Gets all the events in FIRST in a single year
+
+### tba.getEventById(*eventId*[, *year*], *callback(err, event_object)*) 
+##### aliased to tba.getEvent
+`Event Request` on TBA API docs
+Gets event info for a single year
+
+### tba.getTeamsAtEvent(*eventId*[, *year*], *callback(err, teams_list)*) 
+##### aliased to tba.getEventTeams
+`Event Teams Request` on TBA API docs
+get all of the teams at an event
+
+### tba.getMatchesAtEvent(*eventId*[, *year*], *callback(err, matches_list)*) 
+##### aliased to tba.getEventMatches
+`Event Matches Request` on TBA API docs
+get all of the matches at an event
+
+### tba.getStatsAtEvent(*eventId*[, *year*], *callback(err, stats_object)*) 
+##### aliased to tba.getEventStats
+`Event Stats Request` on TBA API docs
+Gets the stats for a single event
+
+### tba.getRankingsAtEvent(*eventId*[, *year*], *callback(err, rankings_list)*) 
+##### aliased to tba.getEventRankings
+`Event Rankings Request` on TBA API docs
+Gets the rankings for a single event
+
+### tba.getAwardsAtEvent(*eventId*[, *year*], *callback(err, awards_list)*) 
+##### aliased to tba.getEventAwards
+`Event Awards Request` on TBA API docs
+Gets awards at an event in a single year
+
+
+## Example Code
+
+```javascript
     tba.getTeamsAtEvent('casb', function(err, teamsInfo) {
-      // the year parameter defaults to the current year
+      // teamsInfo is a list of teams at the Inland Empire Regional for the current year
+      //...
     });
-    
-    // is the same as
-    
-    tba.getTeamsAtEvent('casb', (new Date()).getFullYear(), function(err, teamsInfo) {
-      // (new Date()).getFullYear() returns the current year (ex. 2014)
-    });
-    
-Or from past years:
-    
-    // get 'casb' team data from 2012
-    tba.getTeamsAtEvent('casb', 2012, function(err, teamsInfo) {
-      // teamsInfo is info on teams at the 'casb' regional event in 2012
-    });
+```
 
-### tba.getMatchesAtEvent ([`tba_event_code`], [`year` | optional, defaults to current year], [`callback(error, matchesInfo)`])
-
-    // get info on matches at the 'casb' (Inland Empire Regional) event this year
-    
-    tba.getMatchesAtEvent('casb', function(err, matchesInfo) {
-      // the year parameter defaults to the current year
-    });
-    
-    // is the same as
-    
-    tba.getMatchesAtEvent('casb', (new Date()).getFullYear(), function(err, matchesInfo) {
-      // (new Date()).getFullYear() returns the current year (ex. 2014)
-    });
-    
-Or from past years:
-    
-    // get 'casb' match data from 2012
-    tba.getMatchesAtEvent('casb', 2012, function(err, matchesInfo) {
-      // matchesInfo is info on matches at the 'casb' regional event in 2012
-    });
- 
 
 ## Support
   - [bug reports](https://github.com/khanh111/node-thebluealliance/issues)
 
+
+
 ## To-Do List
+  - more clarity in documentation
   - add better example code
   - tests w/ [Mocha](http://visionmedia.github.io/mocha/)
   - ability to pass in more variants of ids/years (i.e. `'2014orore'` instead of `getEvent('orore',2014)`)
-  - improve documentation (MAKE IT PRETTY!)
 
 ## Functionality Improvements To Make
-  - methods that allow analysis of certain data subsets
+  - methods that allow analysis of certain data subsets (maybe a separate library for this)
   - data caching for things that are unlikely to change
     - for this one, limitations due to TBA API (can't get data subsets easily)
+
+
 
 ## License
 
