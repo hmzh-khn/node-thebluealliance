@@ -1,5 +1,5 @@
 /**
- * The Blue Alliance API Library for node.js v1.1.0
+ * The Blue Alliance API Library for node.js v1.1.1
  * (c) 2014 Hamzah Khan [FRC 3188 (2010), FRC 3636 (2011-12), FRC 1540 (2013-14)]
  * License: MIT
  */
@@ -199,7 +199,7 @@ exports = module.exports = function initTBA(name, description, version) {
 
 	// 'Event Teams Request' on TBA API docs
 	// get all of the teams at an event
-	tba['getTeamsAtEvent'] = function(eventId, year, callback) {
+	tba['getTeamsAtEvent'] = tba['getEventTeams'] = function(eventId, year, callback) {
 
 		// Argument validation
 		var validatedYear = yearValidation( year, callback );
@@ -213,7 +213,7 @@ exports = module.exports = function initTBA(name, description, version) {
 
 	// 'Event Matches Request' on TBA API docs
 	// get all of the matches at an event
-	tba['getMatchesAtEvent'] = function(eventId, year, callback) {
+	tba['getMatchesAtEvent'] = tba['getEventMatches'] = function(eventId, year, callback) {
 
 		// Argument validation
 		var validatedYear = yearValidation( year, callback );
@@ -253,7 +253,7 @@ exports = module.exports = function initTBA(name, description, version) {
 
 	// 'Event Awards Request' on TBA API docs
 	// gets awards at an event in a single year
-	tba['getAwardsAtEvent'] = function(eventId, year, callback) {
+	tba['getAwardsAtEvent'] = tba['getEventAwards'] = function(eventId, year, callback) {
 
 		// Argument validation
 		var validatedYear = yearValidation( year, callback );
