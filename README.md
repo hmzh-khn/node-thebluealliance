@@ -168,6 +168,13 @@ Gets all the teams media for a single year,  as collected on TBA
 'Team History Events Request' on TBA API docs
 Gets all historical events for a given team
 
+### tba.getAwardHistoryForTeam(*frc_id*, [*year*], *callback(err, media_list)*)
+
+##### aliased as tba.getTeamAwardHistory
+
+'Team History Awards Request' on TBA API docs
+Gets all historical awards for a given team
+
 
 ### tba.getListOfEvents([*year*], *callback(err, list_of_teams)*)
 

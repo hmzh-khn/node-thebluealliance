@@ -176,6 +176,15 @@ exports = module.exports = function initTBA(name, description, version) {
 		tbaRequest(url, callback);
 	};
 
+    // 'Team History Awards Request' on TBA API docs
+	// gets all historical awards for a given team
+	tba['getAwardHistoryForTeam'] = tba['getTeamAwardHistory'] = function(teamId, year, callback) {
+
+		var url = ROOT_URL+'team/frc'+teamId+'/history/awards';
+
+		tbaRequest(url, callback);
+	};
+
 
 	/*************** EVENT REQUESTS *****************/
 
