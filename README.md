@@ -75,6 +75,10 @@ The year for which data will be returned.
   - **getStatsAtEvent**     /       getEventStats
   - **getRankingsAtEvent**     /       getEventRankings
   - **getAwardsAtEvent**     /       getEventAwards
+  - **getEventHistoryForTeam**     /       getTeamEventHistory
+  - **getAwardHistoryForTeam**     /       getTeamAwardHistory
+  - **getRobotHistoryForTeam**     /       getTeamRobotHistory
+  - **getDistrictHistoryForTeam**     /       getTeamDistrictHistory
 
 
 ### initTBA(*identifier*, *description*, *version_number*)
