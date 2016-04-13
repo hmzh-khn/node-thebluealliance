@@ -15,7 +15,7 @@ var ROOT_URL = 'http://www.thebluealliance.com/api/v2/';
 
 // you have to set a header in order to get the request methods
 exports = module.exports = function initTBA(name, description, version) {
-	
+
 	// required header for v2 of TBA API
 	var headers = { "X-TBA-App-Id":null };
 	var isDefined = function(variable) { return (typeof variable !== 'undefined' && variable !== null); };
@@ -48,7 +48,7 @@ exports = module.exports = function initTBA(name, description, version) {
 	  				// successful request
 	  				callback( null, info );
 	  			}
-	  			
+
 	  			else
 	  				// Unsuccessful because of 404 or something
 	  				callback( new Error('Unsuccessful request to TBA'), null, null );
@@ -109,7 +109,7 @@ exports = module.exports = function initTBA(name, description, version) {
 	// 'Team Events Request' on TBA API docs
 	// gets all the team's events from a single year
 	tba['getEventsForTeam'] = tba['getTeamEvents'] = function(teamId, year, callback) {
-		
+
 		// Argument validation
 		var validatedYear = yearValidation( year, callback );
 		year = validatedYear.year;
@@ -135,7 +135,7 @@ exports = module.exports = function initTBA(name, description, version) {
 	// 'Team Event Matches Request' on TBA API docs
 	// gets all the team's matches at a single event in a single year
 	tba['getMatchesForTeamAtEvent'] = tba['getTeamEventMatches'] = function(teamId, eventId, year, callback) {
-		
+
 		// Argument validation
 		var validatedYear = yearValidation( year, callback );
 		year = validatedYear.year;
@@ -157,13 +157,22 @@ exports = module.exports = function initTBA(name, description, version) {
 	// 'Team Media Request' on TBA API docs
 	// gets all the teams media for a single year, as collected on TBA
 	tba['getMediaForTeam'] = tba['getTeamMedia'] = function(teamId, year, callback) {
-		
+
 		// Argument validation
 		var validatedYear = yearValidation( year, callback );
 		year = validatedYear.year;
 		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
 
 		var url = ROOT_URL+'team/frc'+teamId+'/'+year+'/media';
+		tbaRequest(url, callback);
+	};
+
+    // 'Team History Events Request' on TBA API docs
+	// gets all historical events for a given team
+	tba['getEventHistoryForTeam'] = tba['getTeamEventHistory'] = function(teamId, year, callback) {
+
+		var url = ROOT_URL+'team/frc'+teamId+'/history/events';
+
 		tbaRequest(url, callback);
 	};
 
