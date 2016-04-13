@@ -185,6 +185,15 @@ exports = module.exports = function initTBA(name, description, version) {
 		tbaRequest(url, callback);
 	};
 
+    // 'Team History Robots Request' on TBA API docs
+	// gets all historical robots for a given team
+	tba['getRobotHistoryForTeam'] = tba['getTeamRobotHistory'] = function(teamId, year, callback) {
+
+		var url = ROOT_URL+'team/frc'+teamId+'/history/robots';
+
+		tbaRequest(url, callback);
+	};
+
 
 	/*************** EVENT REQUESTS *****************/
 

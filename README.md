@@ -161,19 +161,26 @@ returns array of years that the team has been participated in FIRST
 `Team Media Request` on TBA API docs
 Gets all the teams media for a single year,  as collected on TBA
 
-### tba.getEventHistoryForTeam(*frc_id*, [*year*], *callback(err, media_list)*)
+### tba.getEventHistoryForTeam(*frc_id*, *callback(err, event_history)*)
 
 ##### aliased as tba.getTeamEventHistory
 
 'Team History Events Request' on TBA API docs
 Gets all historical events for a given team
 
-### tba.getAwardHistoryForTeam(*frc_id*, [*year*], *callback(err, media_list)*)
+### tba.getAwardHistoryForTeam(*frc_id*, *callback(err, award_history)*)
 
 ##### aliased as tba.getTeamAwardHistory
 
 'Team History Awards Request' on TBA API docs
 Gets all historical awards for a given team
+
+### tba.getRobotHistoryForTeam(*frc_id*, *callback(err, robot_history)*)
+
+##### aliased as tba.getTeamRobotHistory
+
+'Team History Robots Request' on TBA API docs
+Gets all historical robots for a given team
 
 
 ### tba.getListOfEvents([*year*], *callback(err, list_of_teams)*)
