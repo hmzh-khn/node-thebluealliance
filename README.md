@@ -182,6 +182,13 @@ Gets all historical awards for a given team
 'Team History Robots Request' on TBA API docs
 Gets all historical robots for a given team
 
+### tba.getDistrictHistoryForTeam(*frc_id*, *callback(err, robot_history)*)
+
+##### aliased as tba.getTeamDistrictHistory
+
+'Team History Districts Request' on TBA API docs
+Gets all historical districts for a given team
+
 
 ### tba.getListOfEvents([*year*], *callback(err, list_of_teams)*)
 

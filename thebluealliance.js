@@ -169,7 +169,7 @@ exports = module.exports = function initTBA(name, description, version) {
 
     // 'Team History Events Request' on TBA API docs
 	// gets all historical events for a given team
-	tba['getEventHistoryForTeam'] = tba['getTeamEventHistory'] = function(teamId, year, callback) {
+	tba['getEventHistoryForTeam'] = tba['getTeamEventHistory'] = function(teamId, callback) {
 
 		var url = ROOT_URL+'team/frc'+teamId+'/history/events';
 
@@ -178,7 +178,7 @@ exports = module.exports = function initTBA(name, description, version) {
 
     // 'Team History Awards Request' on TBA API docs
 	// gets all historical awards for a given team
-	tba['getAwardHistoryForTeam'] = tba['getTeamAwardHistory'] = function(teamId, year, callback) {
+	tba['getAwardHistoryForTeam'] = tba['getTeamAwardHistory'] = function(teamId, callback) {
 
 		var url = ROOT_URL+'team/frc'+teamId+'/history/awards';
 
@@ -187,9 +187,18 @@ exports = module.exports = function initTBA(name, description, version) {
 
     // 'Team History Robots Request' on TBA API docs
 	// gets all historical robots for a given team
-	tba['getRobotHistoryForTeam'] = tba['getTeamRobotHistory'] = function(teamId, year, callback) {
+	tba['getRobotHistoryForTeam'] = tba['getTeamRobotHistory'] = function(teamId, callback) {
 
 		var url = ROOT_URL+'team/frc'+teamId+'/history/robots';
+
+		tbaRequest(url, callback);
+	};
+
+    // 'Team History Districts Request' on TBA API docs
+	// gets all historical robots for a given team
+	tba['getDistrictHistoryForTeam'] = tba['getTeamDistrictHistory'] = function(teamId, callback) {
+
+		var url = ROOT_URL+'team/frc'+teamId+'/history/districts';
 
 		tbaRequest(url, callback);
 	};
