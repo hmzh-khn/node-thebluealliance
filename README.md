@@ -249,7 +249,7 @@ Gets awards at an event in a single year
 ##### aliased as tba.getSingleMatch
 
 `Single Match Request` on TBA API docs
-Gets information from 1 match at an event using a match key
+Gets information from 1 match at an event using a match key (see Match Model - key on TBA API docs)
 
 ## Example Code
 
