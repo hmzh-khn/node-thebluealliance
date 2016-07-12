@@ -79,6 +79,7 @@ The year for which data will be returned.
   - **getAwardHistoryForTeam**     /       getTeamAwardHistory
   - **getRobotHistoryForTeam**     /       getTeamRobotHistory
   - **getDistrictHistoryForTeam**     /       getTeamDistrictHistory
+  - **getSingleMatchFromKey**     / getSingleMatch
 
 
 ### initTBA(*identifier*, *description*, *version_number*)
@@ -243,6 +244,12 @@ Gets the rankings for a single event
 `Event Awards Request` on TBA API docs
 Gets awards at an event in a single year
 
+### tba.getSingleMatchFromKey(*match_key*, *callback(err, match_data)*)
+
+##### aliased as tba.getSingleMatch
+
+`Single Match Request` on TBA API docs
+Gets information from 1 match at an event using a match key (see Match Model - key on TBA API docs)
 
 ## Example Code
 

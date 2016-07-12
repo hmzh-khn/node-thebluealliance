@@ -300,6 +300,18 @@ exports = module.exports = function initTBA(name, description, version) {
 
 		tbaRequest(url,callback);
 	};
-
+	
+	// 'Single Match Request' on TBA API docs
+	// Gets a single match based on match_key
+	tba['getSingleMatchFromKey'] = tba['getSingleMatch'] = function(match_key, callback) {
+		
+		var url = ROOT_URL+'match/'+ match_key;
+		
+		tbaRequest(url,callback);
+	};
+	
+	
+	
+	
 	return tba;
 };
