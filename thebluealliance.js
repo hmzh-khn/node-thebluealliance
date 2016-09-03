@@ -1,5 +1,5 @@
 /**
- * The Blue Alliance API Library for node.js es6 v1.2.1
+ * The Blue Alliance API Library for node.js es6 v1.2.2
  * (c) 2014 Hamzah Khan [FRC 3188 (2010), FRC 3636 (2011-12), FRC 1540 (2013-14)]
  * Modified by Gus Caplan [FRC 3135 (2015-16)]
  * License: MIT
@@ -9,7 +9,7 @@
   TBA API docs are at: http://www.thebluealliance.com/apidocs
 */
 
-const req = require('request');
+const req = require('superagent');
 
 const isDefined = variable => (typeof variable !== 'undefined' && variable !== null);
 
@@ -59,28 +59,27 @@ class initTBA {
   tbaRequest (url, callback) {
     callback = callback || function (err, info) { console.log(err, info) }; // safety
 
-    req.get({ headers: this.headers, url: url },
+    req.get(url)
+    .set(this.headers)
+    .end((err, res) => {
+      if (!err) {
+        if (res.statusCode === 200) {
+          let info = res.body;
 
-      function (err, res) {
-        if (!err) {
-          if (res.statusCode === 200) {
-            let info = JSON.parse(res.body);
+          // sets error to be null if there is a team, or null if no such team exists
+          err = (info != null) ? null : new Error('Team did/does not exist in FIRST as of the desired year');
 
-            // sets error to be null if there is a team, or null if no such team exists
-            err = (info != null) ? null : new Error('Team did/does not exist in FIRST as of the desired year');
-
-            // successful request
-            callback(null, info);
-          } else {
-            // Unsuccessful because of 404 or something
-            callback(new Error('Unsuccessful request to TBA'), null, null);
-          }
+          // successful request
+          callback(null, info);
         } else {
-          // error in request
-          callback(err, null, null);
+          // Unsuccessful because of 404 or something
+          callback(new Error('Unsuccessful request to TBA'), null, null);
         }
+      } else {
+        // error in request
+        callback(err, null, null);
       }
-    )
+    });
   };
 
   yearValidation (year, callback) {
