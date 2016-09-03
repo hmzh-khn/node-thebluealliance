@@ -18,7 +18,7 @@ class initTBA {
 
   constructor (name, description, version) {
     // all TBA API v2 requests go to this root uri
-    this.ROOT_URL = 'http://www.thebluealliance.com/api/v2/';
+    this.ROOT_URL = 'http://www.thebluealliance.com/api/v2';
     this.headers = { 'X-TBA-App-Id': null };
     // set header or throw error
     if (isDefined(name) && isDefined(description) && isDefined(version)) {
@@ -59,7 +59,7 @@ class initTBA {
   tbaRequest (url, callback) {
     callback = callback || function (err, info) { console.log(err, info) }; // safety
 
-    req.get(url)
+    req.get(this.ROOT_URL + url)
     .set(this.headers)
     .end((err, res) => {
       if (!err) {
@@ -120,7 +120,7 @@ class initTBA {
   // 'Team Request' on TBA API docs
   // gets one team's background info by its team id and year
   getTeam (teamId, callback) {
-    let url = this.ROOT_URL + 'team/frc' + teamId;
+    let url = `/team/frc${teamId}`;
 
     this.tbaRequest(url, callback);
   };
@@ -133,7 +133,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/' + year + '/events';
+    let url = `/team/frc${teamId}/${year}/events`;
     this.tbaRequest(url, callback);
   };
 
@@ -145,7 +145,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/event/' + year + eventId + '/awards';
+    let url = `/team/frc${teamId}/event/${year}${eventId}/awards`;
     this.tbaRequest(url, callback);
   };
 
@@ -157,14 +157,14 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/event/' + year + eventId + '/matches';
+    let url = `/team/frc${teamId}/event/${year}${eventId}/matches`;
     this.tbaRequest(url, callback);
   };
 
   // 'Team Years Participated Request' on TBA API docs
   // returns array of years that the team has been participated in FIRST
   getTeamYearsParticipated (teamId, callback) {
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/years_participated';
+    let url = `/team/frc${teamId}/years_participated`;
 
     this.tbaRequest(url, callback);
   };
@@ -177,14 +177,14 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/' + year + '/media';
+    let url = `/team/frc${teamId}/${year}/media`;
     this.tbaRequest(url, callback);
   };
 
     // 'Team History Events Request' on TBA API docs
   // gets all historical events for a given team
   getTeamEventHistory (teamId, callback) {
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/events';
+    let url = `/team/frc${teamId}/history/events`;
 
     this.tbaRequest(url, callback);
   };
@@ -192,7 +192,7 @@ class initTBA {
     // 'Team History Awards Request' on TBA API docs
   // gets all historical awards for a given team
   getTeamAwardHistory (teamId, callback) {
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/awards';
+    let url = `/team/frc${teamId}/history/awards`;
 
     this.tbaRequest(url, callback);
   };
@@ -200,7 +200,7 @@ class initTBA {
     // 'Team History Robots Request' on TBA API docs
   // gets all historical robots for a given team
   getTeamRobotHistory (teamId, callback) {
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/robots';
+    let url = `/team/frc${teamId}/history/robots`;
 
     this.tbaRequest(url, callback);
   };
@@ -208,7 +208,7 @@ class initTBA {
     // 'Team History Districts Request' on TBA API docs
   // gets all historical robots for a given team
   getTeamDistrictHistory (teamId, callback) {
-    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/districts';
+    let url = `/team/frc${teamId}/history/districts`;
 
     this.tbaRequest(url, callback);
   };
@@ -225,7 +225,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'events/' + year;
+    let url = `/events/${year}`;
     this.tbaRequest(url, callback);
   };
 
@@ -237,7 +237,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'event/' + year + eventId;
+    let url = `/event/${year}${eventId}`;
 
     this.tbaRequest(url, callback);
   };
@@ -250,7 +250,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'event/' + year + eventId + '/teams';
+    let url = `/event/${year}${eventId}/teams`;
 
     this.tbaRequest(url, callback);
   };
@@ -263,7 +263,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'event/' + year + eventId + '/matches';
+    let url = `/event/${year}${eventId}/matches`;
 
     this.tbaRequest(url, callback);
   };
@@ -276,7 +276,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'event/' + year + eventId + '/stats';
+    let url = `/event/${year}${eventId}/stats`;
     this.tbaRequest(url, callback);
   };
 
@@ -288,7 +288,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'event/' + year + eventId + '/rankings';
+    let url = `/event/${year}${eventId}/rankings`;
     this.tbaRequest(url, callback);
   };
 
@@ -300,7 +300,7 @@ class initTBA {
     year = validatedYear.year;
     callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-    let url = this.ROOT_URL + 'event/' + year + eventId + '/awards';
+    let url = `/event/${year}${eventId}/awards`;
 
     this.tbaRequest(url, callback);
   };
@@ -308,7 +308,7 @@ class initTBA {
   // 'Single Match Request' on TBA API docs
   // Gets a single match based on match_key
   getSingleMatch (matchKey, callback) {
-    let url = this.ROOT_URL + 'match/' + matchKey;
+    let url = `/match/${matchKey}`;
 
     this.tbaRequest(url, callback);
   };
