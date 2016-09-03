@@ -1,317 +1,319 @@
 /**
- * The Blue Alliance API Library for node.js v1.1.1
+ * The Blue Alliance API Library for node.js es6 v1.2.1
  * (c) 2014 Hamzah Khan [FRC 3188 (2010), FRC 3636 (2011-12), FRC 1540 (2013-14)]
+ * Modified by Gus Caplan [FRC 3135 (2015-16)]
  * License: MIT
  */
 
 /*
-	TBA API docs are at: http://www.thebluealliance.com/apidocs
+  TBA API docs are at: http://www.thebluealliance.com/apidocs
 */
 
-var req = require('request');
+const req = require('request');
 
-// all TBA API v2 requests go to this root folder
-var ROOT_URL = 'http://www.thebluealliance.com/api/v2/';
+const isDefined = variable => (typeof variable !== 'undefined' && variable !== null);
 
 // you have to set a header in order to get the request methods
-exports = module.exports = function initTBA(name, description, version) {
+class initTBA {
 
-	// required header for v2 of TBA API
-	var headers = { "X-TBA-App-Id":null };
-	var isDefined = function(variable) { return (typeof variable !== 'undefined' && variable !== null); };
+  constructor (name, description, version) {
+    // all TBA API v2 requests go to this root uri
+    this.ROOT_URL = 'http://www.thebluealliance.com/api/v2/';
+    this.headers = { 'X-TBA-App-Id': null };
+    // set header or throw error
+    if (isDefined(name) && isDefined(description) && isDefined(version)) {
+      this.headers['X-TBA-App-Id'] = [name, description, version].join(':');
+    } else {
+      return new Error('can not set header with null or undefined values');
+    }
+    /*********************************************
+    ****************** Aliases *******************
+    **********************************************/
+    this.getListOfTeams = this.getTeamList;
+    this.getTeamById = this.getTeam;
+    this.getEventsForTeam = this.getTeamEvents;
+    this.getAwardsForTeamAtEvent = this.getTeamEventAwards;
+    this.getMatchesForTeamAtEvent = this.getTeamEventMatches;
+    this.getYearsParticipatedByTeam = this.getTeamYearsParticipated;
+    this.getMediaForTeam = this.getTeamMedia;
+    this.getEventHistoryForTeam = this.getTeamEventHistory;
+    this.getAwardHistoryForTeam = this.getTeamAwardHistory;
+    this.getRobotHistoryForTeam = this.getTeamRobotHistory;
+    this.getDistrictHistoryForTeam = this.getTeamDistrictHistory;
+    this.getListOfEvents = this.getEventList;
+    this.getEventById = this.getEvent;
+    this.getTeamsAtEvent = this.getEventTeams;
+    this.getMatchesAtEvent = this.getEventMatches;
+    this.getStatsAtEvent = this.getEventStats;
+    this.getRankingsAtEvent = this.getEventRankings;
+    this.getAwardsAtEvent = this.getEventAwards;
+    this.getSingleMatchFromKey = this.getSingleMatch;
+  }
 
-	// set header or throw error
-	if( isDefined(name) && isDefined(description) && isDefined(version) ) {
-		headers['X-TBA-App-Id'] = [name,description,version].join(':');
-	}
-	else {
-		return new Error('can not set header with null or undefined values');
-	}
+  /*********************************************
+  ************** Helper Functions **************
+  **********************************************/
 
-	/*********************************************
-	************** Helper Functions **************
-	**********************************************/
+  // MVF - Most Valuable Function! in library
+  // sends a request to the given url and then calls the callback
+  tbaRequest (url, callback) {
+    callback = callback || function (err, info) { console.log(err, info) }; // safety
 
-	// MVF - Most Valuable Function! in library
-	// sends a request to the given url and then calls the callback
-	var tbaRequest = function(url, callback) {
-		req.get({ headers:headers, url:url },
+    req.get({ headers: this.headers, url: url },
 
-	  	function(err, res) {
-	  		if(!err) {
-	  			if(res.statusCode === 200) {
-	  				var info = JSON.parse(res.body);
+      function (err, res) {
+        if (!err) {
+          if (res.statusCode === 200) {
+            let info = JSON.parse(res.body);
 
-	  				// sets error to be null if there is a team, or null if no such team exists
-	  				var err = (info != null)? null: new Error('Team did/does not exist in FIRST as of the desired year');
+            // sets error to be null if there is a team, or null if no such team exists
+            err = (info != null) ? null : new Error('Team did/does not exist in FIRST as of the desired year');
 
-	  				// successful request
-	  				callback( null, info );
-	  			}
+            // successful request
+            callback(null, info);
+          } else {
+            // Unsuccessful because of 404 or something
+            callback(new Error('Unsuccessful request to TBA'), null, null);
+          }
+        } else {
+          // error in request
+          callback(err, null, null);
+        }
+      }
+    )
+  };
 
-	  			else
-	  				// Unsuccessful because of 404 or something
-	  				callback( new Error('Unsuccessful request to TBA'), null, null );
-	  		}
+  yearValidation (year, callback) {
+    // arguments validation for year and callback
+    switch (typeof year) {
+      case 'number':
+        break;
 
-	  		else
-	  			// error in request
-	  			callback(err, null, null);
-	  	}
+      case 'function':
+        callback = year;
+        year = new Date().getFullYear();
+        break;
 
-	  );
-	};
+      case 'undefined':
+        year = new Date().getFullYear();
+        break;
+    }
 
-	var yearValidation = function(year, callback) {
-		// arguments validation for year and callback
-	  switch( typeof year ) {
-	  	case 'number':
-	  		year = year;
-	  		break;
+    return { year: year, callback: callback };
+  };
 
-	  	case 'function':
-	  		callback = year;
-	  		year = undefined;
+  /*********************************************
+  ************* TBA Library Methods ************
+  **********************************************/
 
-	  	case 'undefined':
-	  		year = new Date().getFullYear();
-	  		break;
-	  }
+  /**********************************************
+  *************** TEAM REQUESTS *****************
+  **********************************************/
 
-	  return { year:year, callback:callback };
-	};
+  // 'Team List Request' on TBA API docs
+  // gets all the teams on one page of the team list at TBA
+  getTeamList (pageNum, callback) {
+    let url = this.ROOT_URL + 'teams/' + pageNum;
 
-	/*********************************************
-	************* TBA Library Methods ************
-	**********************************************/
+    this.tbaRequest(url, callback);
+  };
 
-	var tba = {};
+  // 'Team Request' on TBA API docs
+  // gets one team's background info by its team id and year
+  getTeam (teamId, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId;
 
-	/*************** TEAM REQUESTS *****************/
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Team List Request' on TBA API docs
-	// gets all the teams on one page of the team list at TBA
-	tba['getListOfTeams'] = tba['getTeamList'] = function(pageNum, callback) {
-		var url = ROOT_URL+'teams/'+pageNum;
+  // 'Team Events Request' on TBA API docs
+  // gets all the team's events from a single year
+  getTeamEvents (teamId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		tbaRequest(url, callback);
-	};
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/' + year + '/events';
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Team Request' on TBA API docs
-	// gets one team's background info by its team id and year
-	tba['getTeam'] = tba['getTeamById'] = function(teamId, callback) {
+  // 'Team Event Awards Request' on TBA API docs
+  // gets all the teams awards for a single year at a single event
+  getTeamEventAwards (teamId, eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		var url = ROOT_URL+'team/frc'+ teamId;
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/event/' + year + eventId + '/awards';
+    this.tbaRequest(url, callback);
+  };
 
-		tbaRequest(url,callback);
-	};
+  // 'Team Event Matches Request' on TBA API docs
+  // gets all the team's matches at a single event in a single year
+  getTeamEventMatches (teamId, eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-	// 'Team Events Request' on TBA API docs
-	// gets all the team's events from a single year
-	tba['getEventsForTeam'] = tba['getTeamEvents'] = function(teamId, year, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/event/' + year + eventId + '/matches';
+    this.tbaRequest(url, callback);
+  };
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
+  // 'Team Years Participated Request' on TBA API docs
+  // returns array of years that the team has been participated in FIRST
+  getTeamYearsParticipated (teamId, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/years_participated';
 
-		var url = ROOT_URL+'team/frc'+teamId+'/'+year+'/events';
-		tbaRequest(url, callback);
-	};
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Team Event Awards Request' on TBA API docs
-	// gets all the teams awards for a single year at a single event
-	tba['getAwardsForTeamAtEvent'] = tba['getTeamEventAwards'] = function(teamId, eventId, year, callback) {
+  // 'Team Media Request' on TBA API docs
+  // gets all the teams media for a single year, as collected on TBA
+  getTeamMedia (teamId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
-
-		var url = ROOT_URL+'team/frc'+teamId+'/event/'+year+eventId+'/awards';
-		tbaRequest(url, callback);
-	};
-
-	// 'Team Event Matches Request' on TBA API docs
-	// gets all the team's matches at a single event in a single year
-	tba['getMatchesForTeamAtEvent'] = tba['getTeamEventMatches'] = function(teamId, eventId, year, callback) {
-
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
-
-		var url = ROOT_URL+'team/frc'+teamId+'/event/'+year+eventId+'/matches';
-		tbaRequest(url, callback);
-	};
-
-	// 'Team Years Participated Request' on TBA API docs
-	// returns array of years that the team has been participated in FIRST
-	tba['getYearsParticipatedByTeam'] = tba['getTeamYearsParticipated'] = function(teamId, callback) {
-
-		var url = ROOT_URL+'team/frc'+teamId+'/years_participated';
-
-		tbaRequest(url,callback);
-	};
-
-	// 'Team Media Request' on TBA API docs
-	// gets all the teams media for a single year, as collected on TBA
-	tba['getMediaForTeam'] = tba['getTeamMedia'] = function(teamId, year, callback) {
-
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
-
-		var url = ROOT_URL+'team/frc'+teamId+'/'+year+'/media';
-		tbaRequest(url, callback);
-	};
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/' + year + '/media';
+    this.tbaRequest(url, callback);
+  };
 
     // 'Team History Events Request' on TBA API docs
-	// gets all historical events for a given team
-	tba['getEventHistoryForTeam'] = tba['getTeamEventHistory'] = function(teamId, callback) {
+  // gets all historical events for a given team
+  getTeamEventHistory (teamId, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/events';
 
-		var url = ROOT_URL+'team/frc'+teamId+'/history/events';
-
-		tbaRequest(url, callback);
-	};
+    this.tbaRequest(url, callback);
+  };
 
     // 'Team History Awards Request' on TBA API docs
-	// gets all historical awards for a given team
-	tba['getAwardHistoryForTeam'] = tba['getTeamAwardHistory'] = function(teamId, callback) {
+  // gets all historical awards for a given team
+  getTeamAwardHistory (teamId, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/awards';
 
-		var url = ROOT_URL+'team/frc'+teamId+'/history/awards';
-
-		tbaRequest(url, callback);
-	};
+    this.tbaRequest(url, callback);
+  };
 
     // 'Team History Robots Request' on TBA API docs
-	// gets all historical robots for a given team
-	tba['getRobotHistoryForTeam'] = tba['getTeamRobotHistory'] = function(teamId, callback) {
+  // gets all historical robots for a given team
+  getTeamRobotHistory (teamId, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/robots';
 
-		var url = ROOT_URL+'team/frc'+teamId+'/history/robots';
-
-		tbaRequest(url, callback);
-	};
+    this.tbaRequest(url, callback);
+  };
 
     // 'Team History Districts Request' on TBA API docs
-	// gets all historical robots for a given team
-	tba['getDistrictHistoryForTeam'] = tba['getTeamDistrictHistory'] = function(teamId, callback) {
+  // gets all historical robots for a given team
+  getTeamDistrictHistory (teamId, callback) {
+    let url = this.ROOT_URL + 'team/frc' + teamId + '/history/districts';
 
-		var url = ROOT_URL+'team/frc'+teamId+'/history/districts';
+    this.tbaRequest(url, callback);
+  };
 
-		tbaRequest(url, callback);
-	};
+  /***********************************************
+  *************** EVENT REQUESTS *****************
+  ***********************************************/
 
+  // 'Team List Request' on TBA API docs
+  // gets all the events in FIRST in a single year
+  getEventList (year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-	/*************** EVENT REQUESTS *****************/
+    let url = this.ROOT_URL + 'events/' + year;
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Team List Request' on TBA API docs
-	// gets all the events in FIRST in a single year
-	tba['getListOfEvents'] = tba['getEventList'] = function(year, callback) {
+  // 'Event Request' on TBA API docs
+  // gets event info for a single year
+  getEvent (eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
+    let url = this.ROOT_URL + 'event/' + year + eventId;
 
-		var url = ROOT_URL+'events/'+year;
-		tbaRequest(url, callback);
-	};
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Event Request' on TBA API docs
-	// gets event info for a single year
-	tba['getEventById'] = tba['getEvent'] = function(eventId, year, callback) {
+  // 'Event Teams Request' on TBA API docs
+  // get all of the teams at an event
+  getEventTeams (eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
+    let url = this.ROOT_URL + 'event/' + year + eventId + '/teams';
 
-		var url = ROOT_URL+'event/'+ year+eventId;
+    this.tbaRequest(url, callback);
+  };
 
-		tbaRequest(url,callback);
-	};
+  // 'Event Matches Request' on TBA API docs
+  // get all of the matches at an event
+  getEventMatches (eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-	// 'Event Teams Request' on TBA API docs
-	// get all of the teams at an event
-	tba['getTeamsAtEvent'] = tba['getEventTeams'] = function(eventId, year, callback) {
+    let url = this.ROOT_URL + 'event/' + year + eventId + '/matches';
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
+    this.tbaRequest(url, callback);
+  };
 
-		var url = ROOT_URL+'event/'+ year+eventId +'/teams';
+  // 'Event Stats Request' on TBA API docs
+  // gets the stats for a single event
+  getEventStats (eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		tbaRequest(url,callback);
-	};
+    let url = this.ROOT_URL + 'event/' + year + eventId + '/stats';
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Event Matches Request' on TBA API docs
-	// get all of the matches at an event
-	tba['getMatchesAtEvent'] = tba['getEventMatches'] = function(eventId, year, callback) {
+  // 'Event Rankings Request' on TBA API docs
+  // gets the rankings for a single event
+  getEventRankings (eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
+    let url = this.ROOT_URL + 'event/' + year + eventId + '/rankings';
+    this.tbaRequest(url, callback);
+  };
 
-		var url = ROOT_URL+'event/'+ year+eventId +'/matches';
+  // 'Event Awards Request' on TBA API docs
+  // gets awards at an event in a single year
+  getEventAwards (eventId, year, callback) {
+    // Argument validation
+    let validatedYear = this.yearValidation(year, callback);
+    year = validatedYear.year;
+    callback = validatedYear.callback || function (err, info) { console.log(err, info) };
 
-		tbaRequest(url,callback);
-	};
+    let url = this.ROOT_URL + 'event/' + year + eventId + '/awards';
 
-	// 'Event Stats Request' on TBA API docs
-	// gets the stats for a single event
-	tba['getStatsAtEvent'] = tba['getEventStats'] = function(eventId, year, callback) {
+    this.tbaRequest(url, callback);
+  };
 
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
+  // 'Single Match Request' on TBA API docs
+  // Gets a single match based on match_key
+  getSingleMatch (matchKey, callback) {
+    let url = this.ROOT_URL + 'match/' + matchKey;
 
-		var url = ROOT_URL+'event/'+year+eventId+'/stats';
-		tbaRequest(url, callback);
-	};
+    this.tbaRequest(url, callback);
+  };
 
-	// 'Event Rankings Request' on TBA API docs
-	// gets the rankings for a single event
-	tba['getRankingsAtEvent'] = tba['getEventRankings'] = function(eventId, year, callback) {
-
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
-
-		var url = ROOT_URL+'event/'+year+eventId+'/rankings';
-		tbaRequest(url, callback);
-	};
-
-	// 'Event Awards Request' on TBA API docs
-	// gets awards at an event in a single year
-	tba['getAwardsAtEvent'] = tba['getEventAwards'] = function(eventId, year, callback) {
-
-		// Argument validation
-		var validatedYear = yearValidation( year, callback );
-		year = validatedYear.year;
-		callback = validatedYear.callback || function(err, info) { console.log(err,info) };
-
-		var url = ROOT_URL+'event/'+year+eventId+'/awards';
-
-		tbaRequest(url,callback);
-	};
-	
-	// 'Single Match Request' on TBA API docs
-	// Gets a single match based on match_key
-	tba['getSingleMatchFromKey'] = tba['getSingleMatch'] = function(match_key, callback) {
-		
-		var url = ROOT_URL+'match/'+ match_key;
-		
-		tbaRequest(url,callback);
-	};
-	
-	
-	
-	
-	return tba;
 };
+
+module.exports = initTBA;
