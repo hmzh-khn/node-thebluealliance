@@ -1,11 +1,17 @@
 {
   "name": "thebluealliance",
   "description": "Node.js wrapper for The Blue Alliance v2 API",
-  "version": "1.1.2",
+  "version": "1.2.2",
   "author": {
     "name": "Hamzah Khan",
     "email": "hmzh.khn@gmail.com"
   },
+  "contributors": [
+    {
+      "name": "Gus Caplan",
+      "email": "me@guscaplan.me"
+    }
+  ],
   "licenses": {
     "type": "MIT",
     "url": "https://raw.github.com/khanh111/node-thebluealliance/master/LICENSE"
@@ -22,7 +28,7 @@
     "scout"
   ],
   "dependencies": {
-    "request": "2.34.0"
+    "superagent": "^2.2.0"
   },
   "main": "thebluealliance.js",
   "bugs": {
@@ -33,7 +39,6 @@
     "type": "git",
     "url": "git://github.com/khanh111/node-thebluealliance.git"
   },
-  "readme": "# node-thebluealliance   \n   node-thebluealliance is a node.js wrapper library for [The Blue Alliance v2 API](http://www.thebluealliance.com/apidocs). See the v2 API page for more information on what data can be returned. This app uses The Blue Alliance's post-2013 [event codes](https://docs.google.com/spreadsheet/ccc?key=0ApRO2Yzh2z01dExFZEdieV9WdTJsZ25HSWI3VUxsWGc#gid=0). \nSee the github repo for more details on the project.",
   "readmeFilename": "README.md",
   "_id": "underscore@1.0.1",
   "_from": "underscore@~1.0.1",
