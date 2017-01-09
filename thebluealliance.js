@@ -18,7 +18,7 @@ class initTBA {
 
   constructor (name, description, version) {
     // all TBA API v2 requests go to this root uri
-    this.ROOT_URL = 'http://www.thebluealliance.com/api/v2';
+    this.ROOT_URL = 'https://www.thebluealliance.com/api/v2';
     this.headers = { 'X-TBA-App-Id': null };
     // set header or throw error
     if (isDefined(name) && isDefined(description) && isDefined(version)) {
