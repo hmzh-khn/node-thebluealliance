@@ -112,7 +112,7 @@ class initTBA {
   // 'Team List Request' on TBA API docs
   // gets all the teams on one page of the team list at TBA
   getTeamList (pageNum, callback) {
-    let url = `/teams/` + pageNum;
+    let url = `/teams/${pageNum}`;
 
     this.tbaRequest(url, callback);
   };
