@@ -270,7 +270,7 @@ tba.getTeamsAtEvent('casb', function(err, teamsInfo) {
 
 - more clarity in documentation
 - add better example code
-- tests w/ [Mocha](http://visionmedia.github.io/mocha/)
+- tests w/ [Mocha](http://mochajs.org/)
 - ability to pass in more variants of ids/years (i.e. `'2014orore'` instead of `getEvent('orore',2014)`)
 
 ## Upcoming functionality improvements
